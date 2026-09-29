@@ -1,0 +1,84 @@
+<%- include('../partials/header', { title, publik: true, flash }) %>
+
+<div class="header-halaman">
+  <h1>Status Pesanan #<%= rincian.pesanan.id %></h1>
+  <p class="subjudul">Batch: <%= rincian.pesanan.nama_batch %> &middot; Supplier: <%= rincian.pesanan.nama_supplier %></p>
+</div>
+
+<div class="kartu-ringkasan">
+  <div class="baris-ringkasan">
+    <span>Status Pembayaran</span>
+    <span class="lencana lencana--<%= rincian.pesanan.status %>"><%= LABEL_STATUS_PESANAN[rincian.pesanan.status] %></span>
+  </div>
+  <div class="baris-ringkasan">
+    <span>Status Pengiriman Batch</span>
+    <span class="lencana lencana--<%= rincian.pesanan.status_batch %>"><%= LABEL_STATUS_BATCH[rincian.pesanan.status_batch] %></span>
+  </div>
+  <div class="baris-ringkasan">
+    <span>Total Tagihan</span>
+    <span><%= formatRupiah(rincian.totalTagihan) %></span>
+  </div>
+  <div class="baris-ringkasan">
+    <span>Sudah Dibayar</span>
+    <span><%= formatRupiah(rincian.totalDibayar) %></span>
+  </div>
+  <div class="baris-ringkasan baris-ringkasan--total">
+    <span>Sisa Tagihan</span>
+    <span><%= formatRupiah(rincian.sisaTagihan) %></span>
+  </div>
+</div>
+
+<h2>Rincian Pesanan</h2>
+<div class="tabel-bungkus">
+  <table class="tabel">
+    <thead>
+      <tr><th>Produk</th><th>Kuantitas</th><th>Harga Satuan</th><th>Subtotal</th></tr>
+    </thead>
+    <tbody>
+      <% rincian.item.forEach(function(i) { %>
+        <tr>
+          <td data-label="Produk"><%= i.nama_produk %></td>
+          <td data-label="Kuantitas"><%= i.kuantitas %> <%= i.satuan %></td>
+          <td data-label="Harga Satuan"><%= formatRupiah(i.harga_satuan) %></td>
+          <td data-label="Subtotal"><%= formatRupiah(i.subtotal) %></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</div>
+
+<h2>Riwayat Pembayaran</h2>
+<% if (rincian.pembayaran.length === 0) { %>
+  <div class="kondisi-kosong">
+    <p>Belum ada pembayaran yang tercatat untuk pesanan ini.</p>
+  </div>
+<% } else { %>
+  <div class="tabel-bungkus">
+    <table class="tabel">
+      <thead>
+        <tr><th>Tanggal</th><th>Tipe</th><th>Jumlah</th><th>Metode</th></tr>
+      </thead>
+      <tbody>
+        <% rincian.pembayaran.forEach(function(bayar) { %>
+          <tr>
+            <td data-label="Tanggal"><%= formatTanggalWaktu(bayar.dicatat_pada) %></td>
+            <td data-label="Tipe"><%= bayar.tipe === 'dp' ? 'DP' : 'Pelunasan' %></td>
+            <td data-label="Jumlah"><%= formatRupiah(bayar.jumlah) %></td>
+            <td data-label="Metode"><%= bayar.metode || '-' %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+<% } %>
+
+<h2>Data Pemesan</h2>
+<div class="kartu">
+  <div class="baris-nota"><span>Nama</span><span><%= rincian.pesanan.nama_pelanggan %></span></div>
+  <div class="baris-nota"><span>No. WhatsApp</span><span><%= rincian.pesanan.no_hp %></span></div>
+  <div class="baris-nota"><span>Alamat</span><span><%= rincian.pesanan.alamat %></span></div>
+</div>
+
+<p class="subjudul">Simpan tautan halaman ini untuk memantau status pesanan kapan saja.</p>
+
+<%- include('../partials/footer') %>

@@ -14,6 +14,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', require('./routes/index'));
 app.use('/supplier', require('./routes/supplier'));
 app.use('/batch', require('./routes/batch'));
+app.use('/pesan', require('./routes/pesan'));
+app.use('/pesanan', require('./routes/pesanan'));
 
 app.use((req, res) => {
   res.status(404).render('404');

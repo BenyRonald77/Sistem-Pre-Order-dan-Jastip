@@ -1,0 +1,73 @@
+<%- include('../partials/header', { title, publik: true }) %>
+
+<div class="header-halaman">
+  <h1><%= batch.nama %></h1>
+  <p class="subjudul">Supplier: <%= batch.nama_supplier %></p>
+</div>
+
+<% if (!bisaPesan) { %>
+  <div class="kondisi-kosong">
+    <p><strong>Batch ini sudah tidak menerima pesanan baru.</strong></p>
+    <p>
+      <% if (batch.status !== 'buka') { %>
+        Status batch saat ini: <%= LABEL_STATUS_BATCH[batch.status] %>.
+      <% } else { %>
+        Tenggat waktu pemesanan (<%= formatTanggalWaktu(batch.tenggat_waktu) %>) sudah lewat.
+      <% } %>
+    </p>
+  </div>
+<% } else { %>
+  <p class="subjudul">Tenggat pemesanan: <%= formatTanggalWaktu(batch.tenggat_waktu) %></p>
+
+  <% if (error) { %>
+    <div class="notifikasi notifikasi--error" role="alert"><%= error %></div>
+  <% } %>
+
+  <% if (daftarProduk.length === 0) { %>
+    <div class="kondisi-kosong">
+      <p>Belum ada produk yang ditawarkan pada batch ini.</p>
+    </div>
+  <% } else { %>
+    <form class="form form--lebar" method="post" action="/pesan/<%= batch.id %>">
+      <h2>Pilih Produk</h2>
+      <div class="daftar-produk-pilih">
+        <% daftarProduk.forEach(function(p) { %>
+          <div class="baris-produk-pilih">
+            <div class="baris-produk-pilih__info">
+              <strong><%= p.nama %></strong><br>
+              <span class="baris-produk-pilih__harga"><%= formatRupiah(p.harga) %> / <%= p.satuan %></span>
+            </div>
+            <label class="sr-only" for="kuantitas_<%= p.id %>">Kuantitas <%= p.nama %></label>
+            <input
+              class="baris-produk-pilih__qty"
+              type="number" min="0" step="1"
+              id="kuantitas_<%= p.id %>"
+              name="kuantitas_<%= p.id %>"
+              value="<%= inputSebelumnya && inputSebelumnya['kuantitas_' + p.id] ? inputSebelumnya['kuantitas_' + p.id] : 0 %>"
+            >
+          </div>
+        <% }); %>
+      </div>
+
+      <h2>Data Pemesan</h2>
+      <div class="kolom">
+        <label for="nama_pelanggan">Nama Lengkap</label>
+        <input type="text" id="nama_pelanggan" name="nama" required value="<%= inputSebelumnya ? (inputSebelumnya.nama || '') : '' %>">
+      </div>
+      <div class="kolom">
+        <label for="no_hp">Nomor WhatsApp</label>
+        <input type="tel" id="no_hp" name="no_hp" required placeholder="08xxxxxxxxxx" value="<%= inputSebelumnya ? (inputSebelumnya.no_hp || '') : '' %>">
+      </div>
+      <div class="kolom">
+        <label for="alamat">Alamat</label>
+        <textarea id="alamat" name="alamat" required><%= inputSebelumnya ? (inputSebelumnya.alamat || '') : '' %></textarea>
+      </div>
+
+      <div class="grup-tombol">
+        <button type="submit" class="tombol tombol--utama">Kirim Pesanan</button>
+      </div>
+    </form>
+  <% } %>
+<% } %>
+
+<%- include('../partials/footer') %>

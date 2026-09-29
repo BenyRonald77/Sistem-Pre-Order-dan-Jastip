@@ -1,0 +1,61 @@
+const express = require('express');
+const router = express.Router();
+const db = require('../db');
+const { getFlash } = require('../lib/flash');
+const { LABEL_STATUS_BATCH, LABEL_STATUS_PESANAN } = require('../lib/constants');
+const { formatRupiah, formatTanggalWaktu } = require('../lib/format');
+const { ambilRincianPesanan } = require('../lib/pesanan');
+
+const STATUS_PESANAN_VALID = ['pending', 'dp_dibayar', 'lunas', 'dibatalkan'];
+
+router.get('/', (req, res) => {
+  const statusFilter = req.query.status || '';
+
+  let sql = `
+    SELECT pesanan.*, pelanggan.nama AS nama_pelanggan, pelanggan.no_hp,
+      batch.nama AS nama_batch,
+      (SELECT COALESCE(SUM(subtotal), 0) FROM pesanan_item WHERE pesanan_item.pesanan_id = pesanan.id) AS total_tagihan,
+      (SELECT COALESCE(SUM(jumlah), 0) FROM pembayaran WHERE pembayaran.pesanan_id = pesanan.id) AS total_dibayar
+    FROM pesanan
+    JOIN pelanggan ON pelanggan.id = pesanan.pelanggan_id
+    JOIN batch ON batch.id = pesanan.batch_id
+  `;
+  const params = [];
+  if (statusFilter && STATUS_PESANAN_VALID.includes(statusFilter)) {
+    sql += ' WHERE pesanan.status = ?';
+    params.push(statusFilter);
+  }
+  sql += ' ORDER BY pesanan.dibuat_pada DESC';
+
+  const daftarPesanan = db.prepare(sql).all(...params);
+
+  res.render('pesanan/index', {
+    title: 'Semua Pesanan',
+    daftarPesanan,
+    statusFilter,
+    LABEL_STATUS_PESANAN,
+    formatRupiah,
+    formatTanggalWaktu,
+    flash: getFlash(req),
+  });
+});
+
+router.get('/:id', (req, res) => {
+  const rincian = ambilRincianPesanan(req.params.id);
+  if (!rincian) {
+    return res.status(404).render('404');
+  }
+
+  res.render('pesan/status', {
+    title: `Status Pesanan #${rincian.pesanan.id}`,
+    publik: true,
+    rincian,
+    LABEL_STATUS_BATCH,
+    LABEL_STATUS_PESANAN,
+    formatRupiah,
+    formatTanggalWaktu,
+    flash: getFlash(req),
+  });
+});
+
+module.exports = router;

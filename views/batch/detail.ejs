@@ -27,6 +27,11 @@
   <% } %>
 </div>
 
+<div class="kartu">
+  <p class="subjudul" style="margin-bottom:0.4rem;">Tautan pemesanan publik untuk dibagikan ke pelanggan:</p>
+  <p><a href="/pesan/<%= batch.id %>">/pesan/<%= batch.id %></a></p>
+</div>
+
 <h2>Produk dalam Batch Ini</h2>
 <form class="form" method="post" action="/batch/<%= batch.id %>/produk">
   <div class="kolom--baris">
@@ -85,7 +90,7 @@
   <div class="tabel-bungkus">
     <table class="tabel">
       <thead>
-        <tr><th>Pelanggan</th><th>No. HP</th><th>Total Tagihan</th><th>Sudah Dibayar</th><th>Status</th></tr>
+        <tr><th>Pelanggan</th><th>No. HP</th><th>Total Tagihan</th><th>Sudah Dibayar</th><th>Status</th><th><span class="sr-only">Aksi</span></th></tr>
       </thead>
       <tbody>
         <% daftarPesanan.forEach(function(p) { %>
@@ -95,6 +100,7 @@
             <td data-label="Total Tagihan"><%= formatRupiah(p.total_tagihan) %></td>
             <td data-label="Sudah Dibayar"><%= formatRupiah(p.total_dibayar) %></td>
             <td data-label="Status"><span class="lencana lencana--<%= p.status %>"><%= LABEL_STATUS_PESANAN[p.status] %></span></td>
+            <td data-label="Aksi"><a class="tautan-aksi" href="/pesanan/<%= p.id %>">Detail &rsaquo;</a></td>
           </tr>
         <% }); %>
       </tbody>

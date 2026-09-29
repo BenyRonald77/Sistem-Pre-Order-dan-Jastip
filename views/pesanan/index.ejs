@@ -1,0 +1,55 @@
+<%- include('../partials/header', { title, flash }) %>
+
+<div class="header-halaman">
+  <h1>Semua Pesanan</h1>
+  <p class="subjudul">Pesanan dari seluruh batch, dapat difilter berdasarkan status pembayaran.</p>
+</div>
+
+<form class="kolom" method="get" action="/pesanan" style="max-width:18rem;">
+  <label for="status">Filter Status Pembayaran</label>
+  <select id="status" name="status" onchange="this.form.submit()">
+    <option value="">Semua Status</option>
+    <option value="pending" <%= statusFilter === 'pending' ? 'selected' : '' %>>Menunggu Pembayaran</option>
+    <option value="dp_dibayar" <%= statusFilter === 'dp_dibayar' ? 'selected' : '' %>>DP Dibayar</option>
+    <option value="lunas" <%= statusFilter === 'lunas' ? 'selected' : '' %>>Lunas</option>
+    <option value="dibatalkan" <%= statusFilter === 'dibatalkan' ? 'selected' : '' %>>Dibatalkan</option>
+  </select>
+  <noscript><button type="submit" class="tombol tombol--sekunder" style="margin-top:0.6rem;">Terapkan Filter</button></noscript>
+</form>
+
+<% if (daftarPesanan.length === 0) { %>
+  <div class="kondisi-kosong">
+    <p>Tidak ada pesanan<%= statusFilter ? ' dengan status ini' : '' %>.</p>
+  </div>
+<% } else { %>
+  <div class="tabel-bungkus">
+    <table class="tabel">
+      <thead>
+        <tr>
+          <th>Pelanggan</th>
+          <th>No. HP</th>
+          <th>Batch</th>
+          <th>Total</th>
+          <th>Dibayar</th>
+          <th>Status</th>
+          <th><span class="sr-only">Aksi</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% daftarPesanan.forEach(function(p) { %>
+          <tr>
+            <td data-label="Pelanggan"><%= p.nama_pelanggan %></td>
+            <td data-label="No. HP"><%= p.no_hp %></td>
+            <td data-label="Batch"><%= p.nama_batch %></td>
+            <td data-label="Total"><%= formatRupiah(p.total_tagihan) %></td>
+            <td data-label="Dibayar"><%= formatRupiah(p.total_dibayar) %></td>
+            <td data-label="Status"><span class="lencana lencana--<%= p.status %>"><%= LABEL_STATUS_PESANAN[p.status] %></span></td>
+            <td data-label="Aksi"><a class="tautan-aksi" href="/pesanan/<%= p.id %>">Detail &rsaquo;</a></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+<% } %>
+
+<%- include('../partials/footer') %>
