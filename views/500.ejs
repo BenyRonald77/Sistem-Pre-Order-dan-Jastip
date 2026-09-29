@@ -1,0 +1,10 @@
+<%- include('partials/header', { title: 'Terjadi Kesalahan', publik: true }) %>
+<div class="kondisi-error">
+  <h1>Terjadi kesalahan</h1>
+  <p>Maaf, ada masalah di sisi server saat memproses permintaan ini.</p>
+  <% if (typeof pesan !== 'undefined' && pesan) { %>
+    <p class="kondisi-error__detail"><%= pesan %></p>
+  <% } %>
+  <p><a class="tombol tombol--utama" href="/">Kembali ke Dashboard</a></p>
+</div>
+<%- include('partials/footer') %>

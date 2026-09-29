@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= typeof title !== 'undefined' && title ? title + ' - Pre-Order & Jastip' : 'Pre-Order & Jastip' %></title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<a class="lewati-tautan" href="#konten-utama">Langsung ke konten</a>
+<% if (typeof publik === 'undefined' || !publik) { %>
+<header class="header-situs">
+  <div class="header-situs__isi">
+    <a class="merek" href="/">Pre-Order &amp; Jastip</a>
+    <nav class="navigasi" aria-label="Navigasi utama">
+      <a href="/">Dashboard</a>
+      <a href="/supplier">Supplier</a>
+      <a href="/batch">Batch PO</a>
+      <a href="/pesanan">Semua Pesanan</a>
+    </nav>
+  </div>
+</header>
+<% } %>
+<main id="konten-utama" class="halaman<%= (typeof publik !== 'undefined' && publik) ? ' halaman--publik' : '' %>">
+<% if (typeof flash !== 'undefined' && flash) { %>
+  <div class="notifikasi notifikasi--<%= flash.tipe %>" role="status"><%= flash.pesan %></div>
+<% } %>

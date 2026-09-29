@@ -1,0 +1,42 @@
+<%- include('partials/header', { title, flash }) %>
+
+<div class="header-halaman">
+  <h1>Dashboard</h1>
+  <p class="subjudul">Batch pre-order dan jastip yang masih berjalan.</p>
+</div>
+
+<% if (batchAktif.length === 0) { %>
+  <div class="kondisi-kosong">
+    <p>Belum ada batch aktif saat ini.</p>
+    <p><a class="tombol tombol--utama" href="/batch">Buat Batch Pertama</a></p>
+  </div>
+<% } else { %>
+  <div class="tabel-bungkus">
+    <table class="tabel">
+      <thead>
+        <tr>
+          <th>Batch</th>
+          <th>Supplier</th>
+          <th>Tenggat Waktu</th>
+          <th>Status</th>
+          <th>Pesanan Masuk</th>
+          <th><span class="sr-only">Aksi</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% batchAktif.forEach(function(b) { %>
+          <tr>
+            <td data-label="Batch"><%= b.nama %></td>
+            <td data-label="Supplier"><%= b.nama_supplier %></td>
+            <td data-label="Tenggat"><%= formatTanggalWaktu(b.tenggat_waktu) %></td>
+            <td data-label="Status"><span class="lencana lencana--<%= b.status %>"><%= LABEL_STATUS_BATCH[b.status] %></span></td>
+            <td data-label="Pesanan Masuk"><%= b.jumlah_pesanan %></td>
+            <td data-label="Aksi"><a class="tautan-aksi" href="/batch/<%= b.id %>">Kelola &rsaquo;</a></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+<% } %>
+
+<%- include('partials/footer') %>

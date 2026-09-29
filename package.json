@@ -1,0 +1,15 @@
+{
+  "name": "sistem-pre-order-dan-jastip",
+  "version": "1.0.0",
+  "description": "Sistem manajemen pre-order dan jastip: batch PO dengan tenggat waktu, pembayaran DP dan pelunasan, status pengiriman, dan rekap belanja per supplier.",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.9.1",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2"
+  }
+}
