@@ -1,0 +1,44 @@
+<%- include('../partials/header', { title, flash }) %>
+
+<div class="header-halaman">
+  <p class="subjudul"><a href="/batch/<%= batch.id %>">&laquo; Kembali ke Batch</a></p>
+  <h1>Rekap Belanja: <%= batch.nama %></h1>
+  <p class="subjudul">Supplier: <%= batch.nama_supplier %>. Daftar ini adalah jumlah nyata yang perlu dibeli, dihitung dari seluruh pesanan yang belum dibatalkan.</p>
+</div>
+
+<% if (rekap.length === 0) { %>
+  <div class="kondisi-kosong">
+    <p>Belum ada produk terdaftar di batch ini.</p>
+  </div>
+<% } else if (jumlahPesananDihitung === 0) { %>
+  <div class="kondisi-kosong">
+    <p>Belum ada pesanan yang masuk untuk batch ini, sehingga belum ada yang perlu dibelanjakan.</p>
+  </div>
+<% } else { %>
+  <div class="tabel-bungkus">
+    <table class="tabel">
+      <thead>
+        <tr><th>Produk</th><th>Harga Satuan</th><th>Total Kuantitas Dipesan</th><th>Total Nilai</th></tr>
+      </thead>
+      <tbody>
+        <% rekap.forEach(function(r) { %>
+          <tr>
+            <td data-label="Produk"><%= r.nama %></td>
+            <td data-label="Harga Satuan"><%= formatRupiah(r.harga) %></td>
+            <td data-label="Total Kuantitas Dipesan"><strong><%= r.total_kuantitas %></strong> <%= r.satuan %></td>
+            <td data-label="Total Nilai"><%= formatRupiah(r.total_nilai) %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" style="text-align:right;font-weight:700;">Total Belanja ke Supplier</td>
+          <td style="font-weight:700;"><%= formatRupiah(totalNilaiBelanja) %></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <p class="subjudul">Dihitung dari <%= jumlahPesananDihitung %> pesanan yang tidak dibatalkan pada batch ini.</p>
+<% } %>
+
+<%- include('../partials/footer') %>

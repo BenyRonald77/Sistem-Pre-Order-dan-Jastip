@@ -25,6 +25,22 @@
       <span><%= batch.catatan %></span>
     </div>
   <% } %>
+
+  <div class="grup-tombol">
+    <% if (statusBerikutnya) { %>
+      <form method="post" action="/batch/<%= batch.id %>/status" style="display:inline">
+        <input type="hidden" name="status" value="<%= statusBerikutnya %>">
+        <button type="submit" class="tombol tombol--utama">Tandai "<%= LABEL_STATUS_BATCH[statusBerikutnya] %>"</button>
+      </form>
+    <% } %>
+    <% if (bisaDibatalkan) { %>
+      <form method="post" action="/batch/<%= batch.id %>/status" style="display:inline" onsubmit="return confirm('Batalkan batch ini? Tindakan ini tidak dapat diurungkan lewat siklus normal.');">
+        <input type="hidden" name="status" value="dibatalkan">
+        <button type="submit" class="tombol tombol--bahaya">Batalkan Batch</button>
+      </form>
+    <% } %>
+    <a class="tombol tombol--sekunder" href="/batch/<%= batch.id %>/rekap">Lihat Rekap Belanja</a>
+  </div>
 </div>
 
 <div class="kartu">

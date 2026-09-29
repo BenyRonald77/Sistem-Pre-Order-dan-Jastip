@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const { redirectFlash, getFlash } = require('../lib/flash');
-const { LABEL_STATUS_BATCH, LABEL_STATUS_PESANAN } = require('../lib/constants');
+const { LABEL_STATUS_BATCH, LABEL_STATUS_PESANAN, statusBatchBerikutnya, URUTAN_STATUS_BATCH } = require('../lib/constants');
 const { formatRupiah, formatTanggalWaktu } = require('../lib/format');
 
 function ambilBatchAtauNull(id) {
@@ -78,6 +78,8 @@ router.get('/:id', (req, res) => {
   `).all(batch.id);
 
   const batchMasihBuka = batch.status === 'buka' && new Date(batch.tenggat_waktu).getTime() > Date.now();
+  const statusBerikutnya = statusBatchBerikutnya(batch.status);
+  const bisaDibatalkan = batch.status !== 'selesai' && batch.status !== 'dibatalkan';
 
   res.render('batch/detail', {
     title: `Batch: ${batch.nama}`,
@@ -85,10 +87,74 @@ router.get('/:id', (req, res) => {
     daftarProduk,
     daftarPesanan,
     batchMasihBuka,
+    statusBerikutnya,
+    bisaDibatalkan,
     LABEL_STATUS_BATCH,
     LABEL_STATUS_PESANAN,
     formatRupiah,
     formatTanggalWaktu,
+    flash: getFlash(req),
+  });
+});
+
+router.post('/:id/status', (req, res) => {
+  const batch = ambilBatchAtauNull(req.params.id);
+  if (!batch) {
+    return res.status(404).render('404');
+  }
+
+  const statusBaru = req.body.status;
+  const semuaStatusValid = [...URUTAN_STATUS_BATCH, 'dibatalkan'];
+
+  if (!semuaStatusValid.includes(statusBaru)) {
+    return redirectFlash(res, `/batch/${batch.id}`, 'error', 'Status tujuan tidak valid.');
+  }
+
+  if (statusBaru === 'dibatalkan') {
+    if (batch.status === 'selesai' || batch.status === 'dibatalkan') {
+      return redirectFlash(res, `/batch/${batch.id}`, 'error', `Batch berstatus "${LABEL_STATUS_BATCH[batch.status]}" tidak dapat dibatalkan.`);
+    }
+  } else {
+    const berikutnyaSeharusnya = statusBatchBerikutnya(batch.status);
+    if (statusBaru !== berikutnyaSeharusnya) {
+      return redirectFlash(res, `/batch/${batch.id}`, 'error', 'Status pengiriman harus diubah sesuai urutan siklus, tidak bisa melompat.');
+    }
+  }
+
+  db.prepare('UPDATE batch SET status = ? WHERE id = ?').run(statusBaru, batch.id);
+  redirectFlash(res, `/batch/${batch.id}`, 'sukses', `Status batch berhasil diubah menjadi "${LABEL_STATUS_BATCH[statusBaru]}".`);
+});
+
+router.get('/:id/rekap', (req, res) => {
+  const batch = ambilBatchAtauNull(req.params.id);
+  if (!batch) {
+    return res.status(404).render('404');
+  }
+
+  const rekap = db.prepare(`
+    SELECT produk.id, produk.nama, produk.satuan, produk.harga,
+      COALESCE(SUM(pi.kuantitas), 0) AS total_kuantitas,
+      COALESCE(SUM(pi.subtotal), 0) AS total_nilai
+    FROM produk
+    LEFT JOIN pesanan_item pi ON pi.produk_id = produk.id
+      AND pi.pesanan_id IN (SELECT id FROM pesanan WHERE pesanan.status != 'dibatalkan')
+    WHERE produk.batch_id = ?
+    GROUP BY produk.id
+    ORDER BY produk.id ASC
+  `).all(batch.id);
+
+  const totalNilaiBelanja = rekap.reduce((jumlah, r) => jumlah + r.total_nilai, 0);
+  const jumlahPesananDihitung = db.prepare(
+    "SELECT COUNT(*) AS jumlah FROM pesanan WHERE batch_id = ? AND status != 'dibatalkan'"
+  ).get(batch.id).jumlah;
+
+  res.render('batch/rekap', {
+    title: `Rekap Belanja: ${batch.nama}`,
+    batch,
+    rekap,
+    totalNilaiBelanja,
+    jumlahPesananDihitung,
+    formatRupiah,
     flash: getFlash(req),
   });
 });
