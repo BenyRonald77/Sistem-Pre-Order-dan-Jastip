@@ -44,7 +44,11 @@
             <td data-label="Total"><%= formatRupiah(p.total_tagihan) %></td>
             <td data-label="Dibayar"><%= formatRupiah(p.total_dibayar) %></td>
             <td data-label="Status"><span class="lencana lencana--<%= p.status %>"><%= LABEL_STATUS_PESANAN[p.status] %></span></td>
-            <td data-label="Aksi"><a class="tautan-aksi" href="/pesanan/<%= p.id %>">Detail &rsaquo;</a></td>
+            <td data-label="Aksi">
+              <a class="tautan-aksi" href="/pesanan/<%= p.id %>">Detail &rsaquo;</a>
+              <br>
+              <%- include('../partials/form-bayar', { pesanan: p, totalTagihan: p.total_tagihan, totalDibayar: p.total_dibayar, kembali: '/pesanan' + (statusFilter ? '?status=' + statusFilter : ''), formatRupiah }) %>
+            </td>
           </tr>
         <% }); %>
       </tbody>

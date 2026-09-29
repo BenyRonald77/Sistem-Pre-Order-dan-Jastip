@@ -1,0 +1,32 @@
+<%
+// Membutuhkan locals: pesanan (id, status), totalTagihan, totalDibayar, kembali (URL untuk redirect setelah submit)
+%>
+<% if (pesanan.status === 'dibatalkan') { %>
+  <span class="teks-redup">Dibatalkan</span>
+<% } else if (pesanan.status === 'lunas') { %>
+  <span class="teks-redup">Sudah lunas</span>
+<% } else { %>
+  <details class="detail-bayar">
+    <summary>Catat Pembayaran</summary>
+    <form method="post" action="/pesanan/<%= pesanan.id %>/bayar" class="form-bayar">
+      <input type="hidden" name="kembali" value="<%= kembali %>">
+      <div class="kolom">
+        <label for="tipe_<%= pesanan.id %>">Tipe</label>
+        <select id="tipe_<%= pesanan.id %>" name="tipe" required>
+          <option value="dp">DP</option>
+          <option value="pelunasan">Pelunasan</option>
+        </select>
+      </div>
+      <div class="kolom">
+        <label for="jumlah_<%= pesanan.id %>">Jumlah (Rp)</label>
+        <input type="number" id="jumlah_<%= pesanan.id %>" name="jumlah" min="1" step="1" required>
+        <span class="keterangan">Sisa saat ini: <%= formatRupiah(Math.max(totalTagihan - totalDibayar, 0)) %></span>
+      </div>
+      <div class="kolom">
+        <label for="metode_<%= pesanan.id %>">Metode</label>
+        <input type="text" id="metode_<%= pesanan.id %>" name="metode" placeholder="Transfer BCA, QRIS, dll">
+      </div>
+      <button type="submit" class="tombol tombol--utama tombol--kecil">Simpan Pembayaran</button>
+    </form>
+  </details>
+<% } %>
