@@ -1,0 +1,79 @@
+<%- include('../partials/header', { title, flash }) %>
+
+<div class="header-halaman">
+  <h1>Batch PO</h1>
+  <p class="subjudul">Kelola batch pre-order per supplier, lengkap dengan tenggat waktu.</p>
+</div>
+
+<h2>Buat Batch Baru</h2>
+<% if (daftarSupplier.length === 0) { %>
+  <div class="kondisi-kosong">
+    <p>Belum ada supplier. <a href="/supplier">Tambahkan supplier</a> terlebih dahulu sebelum membuat batch.</p>
+  </div>
+<% } else { %>
+  <form class="form" method="post" action="/batch">
+    <div class="kolom">
+      <label for="nama">Nama Batch</label>
+      <input type="text" id="nama" name="nama" required placeholder="Contoh: PO Skincare Korea Batch 12">
+    </div>
+    <div class="kolom">
+      <label for="supplier_id">Supplier</label>
+      <select id="supplier_id" name="supplier_id" required>
+        <option value="">Pilih supplier</option>
+        <% daftarSupplier.forEach(function(s) { %>
+          <option value="<%= s.id %>"><%= s.nama %></option>
+        <% }); %>
+      </select>
+    </div>
+    <div class="kolom">
+      <label for="tenggat_waktu">Tenggat Waktu Pemesanan</label>
+      <input type="datetime-local" id="tenggat_waktu" name="tenggat_waktu" required>
+      <span class="keterangan">Setelah waktu ini, pelanggan tidak bisa lagi memesan pada batch ini.</span>
+    </div>
+    <div class="kolom">
+      <label for="catatan">Catatan (opsional)</label>
+      <textarea id="catatan" name="catatan" placeholder="Contoh: DP minimal 50%, estimasi kirim 3 minggu setelah ditutup"></textarea>
+    </div>
+    <div class="grup-tombol">
+      <button type="submit" class="tombol tombol--utama">Buat Batch</button>
+    </div>
+  </form>
+<% } %>
+
+<h2>Semua Batch</h2>
+<% if (daftarBatch.length === 0) { %>
+  <div class="kondisi-kosong">
+    <p>Belum ada batch yang dibuat.</p>
+  </div>
+<% } else { %>
+  <div class="tabel-bungkus">
+    <table class="tabel">
+      <thead>
+        <tr>
+          <th>Batch</th>
+          <th>Supplier</th>
+          <th>Tenggat</th>
+          <th>Status</th>
+          <th>Produk</th>
+          <th>Pesanan</th>
+          <th><span class="sr-only">Aksi</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% daftarBatch.forEach(function(b) { %>
+          <tr>
+            <td data-label="Batch"><%= b.nama %></td>
+            <td data-label="Supplier"><%= b.nama_supplier %></td>
+            <td data-label="Tenggat"><%= formatTanggalWaktu(b.tenggat_waktu) %></td>
+            <td data-label="Status"><span class="lencana lencana--<%= b.status %>"><%= LABEL_STATUS_BATCH[b.status] %></span></td>
+            <td data-label="Produk"><%= b.jumlah_produk %></td>
+            <td data-label="Pesanan"><%= b.jumlah_pesanan %></td>
+            <td data-label="Aksi"><a class="tautan-aksi" href="/batch/<%= b.id %>">Kelola &rsaquo;</a></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+<% } %>
+
+<%- include('../partials/footer') %>

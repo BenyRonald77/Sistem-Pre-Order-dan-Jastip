@@ -1,0 +1,105 @@
+<%- include('../partials/header', { title, flash }) %>
+
+<div class="header-halaman">
+  <p class="subjudul"><a href="/batch">&laquo; Semua Batch</a></p>
+  <h1><%= batch.nama %></h1>
+  <p class="subjudul">Supplier: <%= batch.nama_supplier %><% if (batch.kontak_supplier) { %> (<%= batch.kontak_supplier %>)<% } %></p>
+</div>
+
+<div class="kartu">
+  <div class="baris-nota">
+    <span>Status Batch</span>
+    <span class="lencana lencana--<%= batch.status %>"><%= LABEL_STATUS_BATCH[batch.status] %></span>
+  </div>
+  <div class="baris-nota">
+    <span>Tenggat Waktu Pemesanan</span>
+    <span><%= formatTanggalWaktu(batch.tenggat_waktu) %></span>
+  </div>
+  <div class="baris-nota">
+    <span>Menerima Pesanan Baru Saat Ini</span>
+    <span><%= batchMasihBuka ? 'Ya' : 'Tidak' %></span>
+  </div>
+  <% if (batch.catatan) { %>
+    <div class="baris-nota">
+      <span>Catatan</span>
+      <span><%= batch.catatan %></span>
+    </div>
+  <% } %>
+</div>
+
+<h2>Produk dalam Batch Ini</h2>
+<form class="form" method="post" action="/batch/<%= batch.id %>/produk">
+  <div class="kolom--baris">
+    <div class="kolom">
+      <label for="nama_produk">Nama Produk</label>
+      <input type="text" id="nama_produk" name="nama" required placeholder="Contoh: Serum Vitamin C 30ml">
+    </div>
+    <div class="kolom">
+      <label for="harga">Harga per Satuan (Rp)</label>
+      <input type="number" id="harga" name="harga" required min="1" step="1" placeholder="150000">
+    </div>
+    <div class="kolom">
+      <label for="satuan">Satuan</label>
+      <input type="text" id="satuan" name="satuan" required placeholder="pcs / botol / pack">
+    </div>
+  </div>
+  <div class="grup-tombol">
+    <button type="submit" class="tombol tombol--utama">Tambah Produk</button>
+  </div>
+</form>
+
+<% if (daftarProduk.length === 0) { %>
+  <div class="kondisi-kosong">
+    <p>Belum ada produk di batch ini. Tambahkan produk lewat form di atas.</p>
+  </div>
+<% } else { %>
+  <div class="tabel-bungkus">
+    <table class="tabel">
+      <thead>
+        <tr><th>Produk</th><th>Harga</th><th>Satuan</th><th><span class="sr-only">Aksi</span></th></tr>
+      </thead>
+      <tbody>
+        <% daftarProduk.forEach(function(p) { %>
+          <tr>
+            <td data-label="Produk"><%= p.nama %></td>
+            <td data-label="Harga"><%= formatRupiah(p.harga) %></td>
+            <td data-label="Satuan"><%= p.satuan %></td>
+            <td data-label="Aksi">
+              <form method="post" action="/batch/<%= batch.id %>/produk/<%= p.id %>/hapus" style="display:inline" onsubmit="return confirm('Hapus produk ini dari batch?');">
+                <button type="submit" class="tautan-aksi tautan-aksi--bahaya">Hapus</button>
+              </form>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+<% } %>
+
+<h2>Pesanan Masuk</h2>
+<% if (daftarPesanan.length === 0) { %>
+  <div class="kondisi-kosong">
+    <p>Belum ada pesanan masuk untuk batch ini.</p>
+  </div>
+<% } else { %>
+  <div class="tabel-bungkus">
+    <table class="tabel">
+      <thead>
+        <tr><th>Pelanggan</th><th>No. HP</th><th>Total Tagihan</th><th>Sudah Dibayar</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <% daftarPesanan.forEach(function(p) { %>
+          <tr>
+            <td data-label="Pelanggan"><%= p.nama_pelanggan %></td>
+            <td data-label="No. HP"><%= p.no_hp %></td>
+            <td data-label="Total Tagihan"><%= formatRupiah(p.total_tagihan) %></td>
+            <td data-label="Sudah Dibayar"><%= formatRupiah(p.total_dibayar) %></td>
+            <td data-label="Status"><span class="lencana lencana--<%= p.status %>"><%= LABEL_STATUS_PESANAN[p.status] %></span></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+<% } %>
+
+<%- include('../partials/footer') %>

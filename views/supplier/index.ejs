@@ -1,0 +1,59 @@
+<%- include('../partials/header', { title, flash }) %>
+
+<div class="header-halaman">
+  <h1>Supplier</h1>
+  <p class="subjudul">Daftar pemasok tempat barang jastip dibeli.</p>
+</div>
+
+<h2><%= supplierDiedit ? 'Ubah Supplier' : 'Tambah Supplier' %></h2>
+<form class="form" method="post" action="<%= supplierDiedit ? '/supplier/' + supplierDiedit.id + '/edit' : '/supplier' %>">
+  <div class="kolom">
+    <label for="nama">Nama Supplier</label>
+    <input type="text" id="nama" name="nama" required value="<%= supplierDiedit ? supplierDiedit.nama : '' %>" placeholder="Contoh: Toko Grosir Jaya">
+  </div>
+  <div class="kolom">
+    <label for="kontak">Kontak (opsional)</label>
+    <input type="text" id="kontak" name="kontak" value="<%= supplierDiedit && supplierDiedit.kontak ? supplierDiedit.kontak : '' %>" placeholder="Nomor WhatsApp atau alamat">
+  </div>
+  <div class="grup-tombol">
+    <button type="submit" class="tombol tombol--utama"><%= supplierDiedit ? 'Simpan Perubahan' : 'Tambah Supplier' %></button>
+    <% if (supplierDiedit) { %>
+      <a class="tombol tombol--sekunder" href="/supplier">Batal</a>
+    <% } %>
+  </div>
+</form>
+
+<h2>Daftar Supplier</h2>
+<% if (daftarSupplier.length === 0) { %>
+  <div class="kondisi-kosong">
+    <p>Belum ada supplier. Tambahkan supplier pertama lewat form di atas.</p>
+  </div>
+<% } else { %>
+  <div class="tabel-bungkus">
+    <table class="tabel">
+      <thead>
+        <tr><th>Nama</th><th>Kontak</th><th>Jumlah Batch</th><th><span class="sr-only">Aksi</span></th></tr>
+      </thead>
+      <tbody>
+        <% daftarSupplier.forEach(function(s) { %>
+          <tr>
+            <td data-label="Nama"><%= s.nama %></td>
+            <td data-label="Kontak"><%= s.kontak || '-' %></td>
+            <td data-label="Jumlah Batch"><%= s.jumlah_batch %></td>
+            <td data-label="Aksi">
+              <a class="tautan-aksi" href="/supplier?edit=<%= s.id %>">Ubah</a>
+              <% if (s.jumlah_batch === 0) { %>
+                &middot;
+                <form method="post" action="/supplier/<%= s.id %>/hapus" style="display:inline" onsubmit="return confirm('Hapus supplier ini?');">
+                  <button type="submit" class="tautan-aksi tautan-aksi--bahaya">Hapus</button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+<% } %>
+
+<%- include('../partials/footer') %>
